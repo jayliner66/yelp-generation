@@ -5,7 +5,7 @@ Created on Sat Nov 30 16:23:40 2019
 
 @author: adam
 """
-
+import json
 from keras.models import Model
 from keras.layers import Dense, Input, GRU
 from keras.layers.embeddings import Embedding
@@ -14,8 +14,10 @@ context_dim = 50
 num_tokens = 10000
 
 BEAM_WIDTH = 10
+max_length = 50
 
-
+START = 10005
+END = 10006
 context = Input(shape=(context_dim,))
 decoder_input = Input(shape=(None,))
 decoder_embed = Embedding(input_dim=num_tokens, output_dim=context_dim, mask_zero=True)
@@ -34,20 +36,20 @@ training_model = Model([context, decoder_input], output)
 
 decoder_model = Model([context, decoder_input], [output, h])
 
-def json_readline(file):
+def readline(file):
     for line in open(file, mode="r"):
-        yield json.loads(line)
+        yield line
 
 word_to_num = {}
 num_to_word = {}
 counter = 0
-for word in json_readline("common_words.txt"):
+for word in readline("common_words.txt"):
     word_to_num[word] = counter
     num_to_word[counter] = word
     counter += 1
 
 def review_to_num(review):
-    nums = []
+    nums = [START]
     s = '!"#$%&()*+,-./:;?@[\\]^_`{|}~\t\n\r\x0b\x0c'
     words = review
     for i in range(len(s)):
@@ -60,6 +62,7 @@ def review_to_num(review):
             nums.append(word_to_num[w])
         else:
             nums.append(10000) # other
+    nums.append(END)
     return nums
 
 def sample_from(distribution_array, num_of_samples):
@@ -75,6 +78,7 @@ def sample_from(distribution_array, num_of_samples):
 
 def generate_text(input_context):
     possibilities = [([], START, input_context, 0)] #array of [sentence so far, current word, current hidden state, -log probability of sentence so far]
+    not_stopped = True
     while not_stopped:#TODO: not_stopped based on END token or max length
         new_possibilities = []
         for possibility in possibilities:
@@ -85,9 +89,15 @@ def generate_text(input_context):
                     new_possibilities+=[(possibility[0]+[next_word], next_word, hidden_state, possibility[3]-log(probability))]
             else:
                 new_possibilities+=possibility
-        new_possibilities.sort((key=lambda tup: tup[3], reverse=True)
+        new_possibilities.sort(key=lambda tup: tup[3], reverse=True)
         possibilities = new_possibilities[0:min(BEAM_WIDTH,len(new_possibilities))] #BEAM_WIDTH lowest -log prob of new_possibilities
 
+        continueloop = False
+        for p in possibilities:
+            if((len(p[0]) < max_length) and (p[1] != END)):
+                continueloop = True
+        if not continueloop:
+            not_stopped = False
     return possibilities[0][0]
 
     #TODO: return argmax -log probability of possibilities
