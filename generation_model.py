@@ -48,17 +48,33 @@ for word in json_readline("common_words.txt"):
 
 def review_to_num(review):
     nums = []
-    for w in review.split(" "):
+    s = '!"#$%&()*+,-./:;?@[\\]^_`{|}~\t\n\r\x0b\x0c'
+    words = review
+    for i in range(len(s)):
+        words = words.replace(s[i], " "+s[i]+" ")
+    words = words.split(" ")
+    for w in words:
+        if(w == " "):
+            continue
         if w in word_to_num:
             nums.append(word_to_num[w])
         else:
             nums.append(10000) # other
+    return nums
 
 def sample_from(distribution_array, num_of_samples):
-    #TODO: return list of indices, values corresponding to num_of_samples highest values in distribution_array (num_of_samples=1 would be argmax)
+    # return list of indices, values corresponding to num_of_samples highest values in distribution_array (num_of_samples=1 would be argmax)
+    new_dist_array = []
+    for i in range(len(distribution_array)):
+        new_dist_array.append((-1*distribution_array[i], i))
+    new_dist_array.sort()
+    ans = []
+    for i in range(num_of_samples):
+        ans.append(distribution_array[i][0])
+    return ans
 
 def generate_text(input_context):
-    possibilities = [[[], START, input_context, 0]] #array of [sentence so far, current word, current hidden state, -log probability of sentence so far]
+    possibilities = [([], START, input_context, 0)] #array of [sentence so far, current word, current hidden state, -log probability of sentence so far]
     while not_stopped:#TODO: not_stopped based on END token or max length
         new_possibilities = []
         for possibility in possibilities:
@@ -66,8 +82,12 @@ def generate_text(input_context):
                 next_word_dist, hidden_state = decoder_model.predict(possibility[2], possibility[1])
                 next_words = sample_from(next_word_dist, BEAM_WIDTH)
                 for next_word, probability in next_words:
-                    new_possibilities+=[[possibility[0]+[next_word], next_word, hidden_state, possibility[3]-log(probability)]]
+                    new_possibilities+=[(possibility[0]+[next_word], next_word, hidden_state, possibility[3]-log(probability))]
             else:
                 new_possibilities+=possibility
-        possibilities = #BEAM_WIDTH lowest -log prob of new_possibilities
+        new_possibilities.sort((key=lambda tup: tup[3], reverse=True)
+        possibilities = new_possibilities[0:min(BEAM_WIDTH,len(new_possibilities))] #BEAM_WIDTH lowest -log prob of new_possibilities
+
+    return possibilities[0][0]
+
     #TODO: return argmax -log probability of possibilities
