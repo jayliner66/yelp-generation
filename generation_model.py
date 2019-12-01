@@ -43,7 +43,7 @@ def readline(file):
 word_to_num = {}
 num_to_word = {}
 counter = 0
-for word in readline("common_words.txt"):
+for word in readline("commonwords_punct.txt"):
     word_to_num[word] = counter
     num_to_word[counter] = word
     counter += 1
