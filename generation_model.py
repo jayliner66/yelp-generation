@@ -36,6 +36,7 @@ training_model = Model([context, decoder_input], output)
 
 decoder_model = Model([context, decoder_input], [output, h])
 
+
 def readline(file):
     for line in open(file, mode="r"):
         yield line
