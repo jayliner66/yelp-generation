@@ -34,6 +34,26 @@ training_model = Model([context, decoder_input], output)
 
 decoder_model = Model([context, decoder_input], [output, h])
 
+def json_readline(file):
+    for line in open(file, mode="r"):
+        yield json.loads(line)
+
+word_to_num = {}
+num_to_word = {}
+counter = 0
+for word in json_readline("common_words.txt"):
+    word_to_num[word] = counter
+    num_to_word[counter] = word
+    counter += 1
+
+def review_to_num(review):
+    nums = []
+    for w in review.split(" "):
+        if w in word_to_num:
+            nums.append(word_to_num[w])
+        else:
+            nums.append(10000) # other
+
 def sample_from(distribution_array, num_of_samples):
     #TODO: return list of indices, values corresponding to num_of_samples highest values in distribution_array (num_of_samples=1 would be argmax)
 
