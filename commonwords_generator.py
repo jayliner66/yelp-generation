@@ -40,6 +40,6 @@ list_words = []
 for i in count:
     list_words.append((-1*count[i], i))
 list_words.sort()
-with open('common_words.txt', 'w') as f:
+with open('commonwords_punct.txt', 'w') as f:
     for i in range(10000):
         f.write(list_words[i][1] + "\n")
