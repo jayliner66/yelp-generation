@@ -36,6 +36,14 @@ training_model = Model([context, decoder_input], output)
 
 decoder_model = Model([context, decoder_input], [output, h])
 
+###### TRAIN THE MODEL!?!?! Help IDK How to do this
+## what are encoder_input_data, decoder_input_data, decoder_target_data!?
+training_model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
+training_model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
+          batch_size=batch_size,
+          epochs=epochs,
+          validation_split=0.2)
+##########
 
 def readline(file):
     for line in open(file, mode="r"):
