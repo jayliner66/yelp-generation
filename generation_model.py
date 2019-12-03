@@ -25,7 +25,7 @@ START = words['START']
 END = words['END']
 
 context = Input(shape=(context_dim,))
-decoder_input = Input(shape=(max_length, ))
+decoder_input = Input(shape=(None, ))
 decoder_embed = Embedding(input_dim=num_tokens, output_dim=context_dim, mask_zero=True)
 
 gru_1 = GRU(context_dim, return_sequences=True, return_state=False)
@@ -42,8 +42,7 @@ training_model = Model([context, decoder_input], output)
 
 decoder_model = Model([context, decoder_input], [output, h])
 
-###### TRAIN THE MODEL!?!?! Help IDK How to do this
-## what are encoder_input_data, decoder_input_data, decoder_target_data!?
+###### TRAIN 
 
 with open("inputdata.json") as f:
     input_data = np.asarray(json.load(f))
@@ -61,40 +60,5 @@ training_model.fit([context_array, input_data], output_data,
           validation_split=0.2)
 ##########
 
+decoder_model.save('review_generation_model.h5')
 
-def sample_from(distribution_array, num_of_samples):
-    # return list of indices, values corresponding to num_of_samples highest values in distribution_array (num_of_samples=1 would be argmax)
-    new_dist_array = []
-    for i in range(len(distribution_array)):
-        new_dist_array.append((-1*distribution_array[i], i))
-    new_dist_array.sort()
-    ans = []
-    for i in range(num_of_samples):
-        ans.append(distribution_array[i][0])
-    return ans
-
-def generate_text(input_context):
-    possibilities = [([], START, input_context, 0)] #array of [sentence so far, current word, current hidden state, -log probability of sentence so far]
-    not_stopped = True
-    while not_stopped:#TODO: not_stopped based on END token or max length
-        new_possibilities = []
-        for possibility in possibilities:
-            if possibility[1]!=END:
-                next_word_dist, hidden_state = decoder_model.predict(possibility[2], possibility[1])
-                next_words = sample_from(next_word_dist, BEAM_WIDTH)
-                for next_word, probability in next_words:
-                    new_possibilities+=[(possibility[0]+[next_word], next_word, hidden_state, possibility[3]-log(probability))]
-            else:
-                new_possibilities+=possibility
-        new_possibilities.sort(key=lambda tup: tup[3], reverse=True)
-        possibilities = new_possibilities[0:min(BEAM_WIDTH,len(new_possibilities))] #BEAM_WIDTH lowest -log prob of new_possibilities
-
-        continueloop = False
-        for p in possibilities:
-            if((len(p[0]) < max_length) and (p[1] != END)):
-                continueloop = True
-        if not continueloop:
-            not_stopped = False
-    return possibilities[0][0]
-
-    #TODO: return argmax -log probability of possibilities
