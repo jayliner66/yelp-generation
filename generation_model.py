@@ -6,20 +6,25 @@ Created on Sat Nov 30 16:23:40 2019
 @author: adam
 """
 import json
+import numpy as np
+
 from keras.models import Model
 from keras.layers import Dense, Input, GRU
 from keras.layers.embeddings import Embedding
 
+from review_encoding import words
+from global_constants import batch_size, epochs, max_review_length
+
 context_dim = 50
-num_tokens = 10000
+num_tokens = len(words)+1
 
 BEAM_WIDTH = 10
-max_length = 50
+max_length = max_review_length+1
 
-START = 10005
-END = 10006
+START = words['START']
+END = words['END']
 context = Input(shape=(context_dim,))
-decoder_input = Input(shape=(None,))
+decoder_input = Input(shape=(max_length, ))
 decoder_embed = Embedding(input_dim=num_tokens, output_dim=context_dim, mask_zero=True)
 
 gru_1 = GRU(context_dim, return_sequences=True, return_state=False)
@@ -38,41 +43,23 @@ decoder_model = Model([context, decoder_input], [output, h])
 
 ###### TRAIN THE MODEL!?!?! Help IDK How to do this
 ## what are encoder_input_data, decoder_input_data, decoder_target_data!?
-training_model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
-training_model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
+
+with open("inputdata.json") as f:
+    input_data = np.asarray(json.load(f))
+with open("outputdata.json") as f:
+    output_data = np.asarray(json.load(f))
+
+
+
+context_array = np.zeros((input_data.shape[0], context_dim))
+    
+training_model.compile(optimizer='rmsprop', loss='sparse_categorical_crossentropy')
+training_model.fit([context_array, input_data], output_data,
           batch_size=batch_size,
           epochs=epochs,
           validation_split=0.2)
 ##########
 
-def readline(file):
-    for line in open(file, mode="r"):
-        yield line
-
-word_to_num = {}
-num_to_word = {}
-counter = 0
-for word in readline("commonwords_punct.txt"):
-    word_to_num[word] = counter
-    num_to_word[counter] = word
-    counter += 1
-
-def review_to_num(review):
-    nums = [START]
-    s = '!"#$%&()*+,-./:;?@[\\]^_`{|}~\t\n\r\x0b\x0c'
-    words = review
-    for i in range(len(s)):
-        words = words.replace(s[i], " "+s[i]+" ")
-    words = words.split(" ")
-    for w in words:
-        if(w == " "):
-            continue
-        if w in word_to_num:
-            nums.append(word_to_num[w])
-        else:
-            nums.append(10000) # other
-    nums.append(END)
-    return nums
 
 def sample_from(distribution_array, num_of_samples):
     # return list of indices, values corresponding to num_of_samples highest values in distribution_array (num_of_samples=1 would be argmax)

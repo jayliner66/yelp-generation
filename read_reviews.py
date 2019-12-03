@@ -5,6 +5,8 @@ import random
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 
+from global_constants import N
+
 text = ""
 
 count = {}
@@ -38,7 +40,7 @@ for word in words:
 sorted_count = sorted(count.items(), key = lambda x: x[1], reverse=True)
 
 file = open("commonwords.txt", 'w')
-for i in range(10000):
+for i in range(N):
     file.write(sorted_count[i][0]+'\n')
 file.close()
 

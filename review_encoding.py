@@ -3,6 +3,9 @@ import string
 import nltk
 from nltk import word_tokenize
 
+from global_constants import N, max_review_length
+
+
 words = {}
 
 file = open("commonwords.txt", 'r')
@@ -10,37 +13,40 @@ i=1
 for line in file:
     words[line[:-1]]=i
     i += 1
+    
+assert len(words)==N
 
+words['PUNKT']=N+1
+words['DOLLAR']=N+2
+words['NUM']=N+3
+words['RARE']=N+4
+words['UNK']=N+5
+words['END_SENT']=N+6
+words['START']=N+7
+words['END']=N+8
 file.close()
 
-text = ""
-counter = 0
 
-with open('yelp_dataset/review.json') as json_file:
-    for line in json_file:
-        text += json.loads(line)["text"]
-        counter += 1
-        if(counter > 10):
-            break
 
 def review_encoding(review):
     encoding = []
-    tokens = word_tokenize(text)
+    tokens = word_tokenize(review)
     tokens = [w.lower() for w in tokens]
     for token in tokens:
         if token in '!.?':
-            encoding.append('END_SENT')
+            encoding.append(words['END_SENT'])
             #Any sentence stoppers, although may have errors, e.g. '.' may represent a decimal
+        elif token in '$':
+            encoding.append(words['DOLLAR']) #Dollar sign
         elif token in string.punctuation:
-            encoding.append('PUNKT') #Any punctuation other than the above
+            encoding.append(words['PUNKT']) #Any punctuation other than the above
         elif token.isnumeric():
-            encoding.append('NUM') #Any integer, decimals will have already been split up
+            encoding.append(words['NUM']) #Any integer, decimals will have already been split up
         elif token in words:
             encoding.append(words[token]) #Encoding of top 10000 words
         elif token.isalpha:
-            encoding.append('RARE') #Any other words
+            encoding.append(words['RARE']) #Any other words
         else:
-            encoding.append('UNK') #Any unknown tokens, which there shouldn't be any
-    return encoding
+            encoding.append(words['UNK']) #Any unknown tokens, which there shouldn't be any
+    return [words['START']]+encoding[:max_review_length]+[0]*(max_review_length-len(encoding))+[words['END']]
 
-# print(review_encoding(text))
