@@ -23,6 +23,8 @@ for review in json_readline("yelp_dataset/review.json"):
     count += 1
     if(count % 100 == 0):
         print(count)
+    if(count > 10000):
+        break
 
 
 with open('inputdata.json', 'w') as f:
