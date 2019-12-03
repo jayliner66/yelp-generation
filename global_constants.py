@@ -8,5 +8,6 @@ Created on Mon Dec  2 20:55:40 2019
 
 N = 10000
 max_review_length = 100
-batch_size = 10
-epochs = 2
+batch_size = 64
+epochs = 5
+learning_rate = 0.001

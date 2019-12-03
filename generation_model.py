@@ -13,7 +13,7 @@ from keras.layers import Dense, Input, GRU
 from keras.layers.embeddings import Embedding
 
 from review_encoding import words
-from global_constants import batch_size, epochs, max_review_length
+from global_constants import batch_size, epochs, max_review_length, learning_rate
 
 context_dim = 50
 num_tokens = len(words)+1
