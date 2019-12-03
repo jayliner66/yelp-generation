@@ -44,7 +44,7 @@ def review_encoding(review):
             encoding.append(words['NUM']) #Any integer, decimals will have already been split up
         elif token in words:
             encoding.append(words[token]) #Encoding of top 10000 words
-        elif token.isalpha:
+        elif token.isalpha():
             encoding.append(words['RARE']) #Any other words
         else:
             encoding.append(words['UNK']) #Any unknown tokens, which there shouldn't be any

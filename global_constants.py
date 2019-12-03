@@ -8,5 +8,5 @@ Created on Mon Dec  2 20:55:40 2019
 
 N = 10000
 max_review_length = 100
-batch_size = 2
+batch_size = 1
 epochs = 2
