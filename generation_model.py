@@ -23,6 +23,7 @@ max_length = max_review_length+1
 
 START = words['START']
 END = words['END']
+
 context = Input(shape=(context_dim,))
 decoder_input = Input(shape=(max_length, ))
 decoder_embed = Embedding(input_dim=num_tokens, output_dim=context_dim, mask_zero=True)
@@ -47,13 +48,13 @@ decoder_model = Model([context, decoder_input], [output, h])
 with open("inputdata.json") as f:
     input_data = np.asarray(json.load(f))
 with open("outputdata.json") as f:
-    output_data = np.asarray(json.load(f))
+    output_data = np.asarray(json.load(f)).reshape(-1, max_length, 1)
 
 
 
 context_array = np.zeros((input_data.shape[0], context_dim))
-    
-training_model.compile(optimizer='rmsprop', loss='sparse_categorical_crossentropy')
+
+training_model.compile(optimizer='rmsprop', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 training_model.fit([context_array, input_data], output_data,
           batch_size=batch_size,
           epochs=epochs,
