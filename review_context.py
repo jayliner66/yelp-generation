@@ -28,6 +28,12 @@ dim = 50
 filename = 'glove.6B.50d.txt.word2vec'
 model = KeyedVectors.load_word2vec_format(filename, binary=False)
 
+wordlist = open("commonwords.txt", 'r')
+word_to_context = {}
+
+for line in wordlist:
+    word_to_context[line[:-1]] = model[line[:-1]]
+
 def make_context(review):
     num_of_random_words = randint(1,3)
     tokens = word_tokenize(review)
@@ -40,18 +46,23 @@ def make_context(review):
     stop_words = set(stopwords.words('english'))
     special_words = [w for w in words if not w in stop_words]
 
+    if special_words == []:
+        special_words = words
+    if(special_words == []):
+        special_words = ["nothing"]
+
     selected_words = []
     for i in range(num_of_random_words):
         while(True):
             word = random.choice(special_words)
-            if word in model.wv.vocab:
+            if word in word_to_context:
                 selected_words.append(word)
                 break
 
 
     total_context = np.zeros(dim)
     for i in range(0,num_of_random_words):
-        total_context = np.add(total_context, model[selected_words[i]])
+        total_context = np.add(total_context, word_to_context[selected_words[i]])
 
     return total_context.tolist()
 

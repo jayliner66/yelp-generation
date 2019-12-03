@@ -15,10 +15,14 @@ special_count = {}
 counter = 0
 #currently, the top 10000 most common words are chosen out of the reviews which are
 #taken with 2% probability
+mycounter = 0
 with open('yelp_dataset/review.json') as json_file:
     for line in json_file:
-        if random.random() < 0.02:
+        if random.random() < 0.05:
             text += json.loads(line)["text"]
+            counter += 1
+            if(counter % 100 == 0):
+                print(counter)
         # text += json.loads(line)["text"]
         # counter += 1
         # if (counter >10):
@@ -53,4 +57,3 @@ for word in special_words:
 sorted_special_count = sorted(special_count.items(), key = lambda x: x[1], reverse=True)
 # print(sorted_special_count[:1000])
 # only contains 'non-common' words
-
