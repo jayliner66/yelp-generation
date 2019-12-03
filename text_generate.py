@@ -16,7 +16,7 @@ from global_constants import batch_size, epochs, max_review_length
 context_dim = 50
 num_tokens = len(words)+1
 
-BEAM_WIDTH = 1
+BEAM_WIDTH = 2
 max_length = max_review_length+1
 
 START = words['START']

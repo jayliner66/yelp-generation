@@ -48,10 +48,8 @@ with open("inputdata.json") as f:
     input_data = np.asarray(json.load(f))
 with open("outputdata.json") as f:
     output_data = np.asarray(json.load(f)).reshape(-1, max_length, 1)
-
-
-
-context_array = np.zeros((input_data.shape[0], context_dim))
+with open("context.json") as f:
+    context_array = np.asarray(json.load(f))
 
 training_model.compile(optimizer='rmsprop', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 training_model.fit([context_array, input_data], output_data,
