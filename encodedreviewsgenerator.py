@@ -1,5 +1,5 @@
 import json
-import review_encoding
+from review_encoding import review_encoding
 ####
 def json_readline(file):
     for line in open(file, mode="r"):
