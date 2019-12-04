@@ -9,13 +9,14 @@ import json
 import numpy as np
 
 from keras.models import Model, load_model
+from review_context import model
 
 from review_encoding import words
 from global_constants import batch_size, epochs, max_review_length
 
 context_dim = 50
 num_tokens = len(words)+1
-k = 1000 #top k sampling
+k = 2000 #top k sampling
 
 BEAM_WIDTH = 10
 max_length = max_review_length+1
@@ -23,7 +24,7 @@ max_length = max_review_length+1
 START = words['START']
 END = words['END']
 
-decoder_model = load_model('review_generation_model.h5')
+decoder_model = load_model('review_generation_model_100000.h5')
 
 def sample_from(distribution_array, num_of_samples):
     # return list of indices, values corresponding to num_of_samples values in distribution_array (num_of_samples=1 would be argmax)
@@ -81,4 +82,8 @@ def tokens_to_string(list_of_tokens):
         s+=num_to_word[token]+' '
     return s
 
-print(tokens_to_string(generate_text(np.zeros(50))))
+s1 = "seafood"
+
+con = model[s1]
+
+print(tokens_to_string(generate_text(con )))
