@@ -3,8 +3,9 @@ import numpy as np
 from review_encoding import review_encoding
 from review_encoding import words
 from review_context import make_context
-from review_context import model
+from review_context import word_to_context
 from global_constants import N
+import random
 ####
 def json_readline(file):
     for line in open(file, mode="r"):
@@ -15,6 +16,8 @@ output_data = []
 context = []
 count = 0
 for review in json_readline("yelp_dataset/review.json"):
+    if random.random() > 0.002:
+        continue
     encoded_review = review_encoding(review["text"])
     review_context = make_context(review["text"])
     input_data.append(encoded_review[:-1]) # START
@@ -23,8 +26,7 @@ for review in json_readline("yelp_dataset/review.json"):
     count += 1
     if(count % 100 == 0):
         print(count)
-    if(count > 10000):
-        break
+
 
 
 with open('inputdata.json', 'w') as f:
