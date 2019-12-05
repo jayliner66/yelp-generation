@@ -32,7 +32,10 @@ wordlist = open("commonwords.txt", 'r')
 word_to_context = {}
 
 for line in wordlist:
-    word_to_context[line[:-1]] = model[line[:-1]]
+    if line[:-1] in model:
+        word_to_context[line[:-1]] = model[line[:-1]]
+    else:
+        word_to_context[line[:-1]] = model["um"]
 
 def make_context(review):
     num_of_random_words = randint(1,3)
