@@ -44,19 +44,19 @@ decoder_model = Model([context, decoder_input], [output, h])
 
 ###### TRAIN 
 
-with open("inputdata.json") as f:
+with open("inputdata_300k.json") as f:
     input_data = np.asarray(json.load(f))
-with open("outputdata.json") as f:
+with open("outputdata_300k.json") as f:
     output_data = np.asarray(json.load(f)).reshape(-1, max_length, 1)
-with open("context.json") as f:
+with open("context_300k.json") as f:
     context_array = np.asarray(json.load(f))
 
 training_model.compile(optimizer='rmsprop', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 training_model.fit([context_array, input_data], output_data,
           batch_size=batch_size,
           epochs=epochs,
-          validation_split=0.2)
+          validation_split=0.05)
 ##########
 
-decoder_model.save('review_generation_model.h5')
+decoder_model.save('review_generation_model_300k.h5')
 

@@ -12,17 +12,19 @@ from keras.models import Model, load_model
 from review_encoding import words
 from global_constants import batch_size, epochs, max_review_length
 
+from gensim.models import KeyedVectors
+
 context_dim = 50
 num_tokens = len(words)+1
 
-BEAM_WIDTH = 10
+BEAM_WIDTH = 150
 max_length = max_review_length+1
-k=500
+k=800
 
 START = words['START']
 END = words['END']
 
-decoder_model = load_model('review_generation_model_300000.h5')
+decoder_model = load_model('review_generation_model_300k.h5')
 
 def sample_from(distribution_array, num_of_samples):
     # return list of indices, values corresponding to num_of_samples values in distribution_array (num_of_samples=1 would be argmax)
@@ -65,6 +67,13 @@ def generate_text(input_context):
 
 
 num_to_word = {num: word for word, num in words.items()}
+num_to_word[0] = "NULL"
+
+#filename = 'glove.6B.50d.txt.word2vec'
+#context = KeyedVectors.load_word2vec_format(filename, binary=False)
+
+with open("context_300k.json") as f:
+    context_array = np.asarray(json.load(f))
 
 
 def tokens_to_string(list_of_tokens):
@@ -73,4 +82,6 @@ def tokens_to_string(list_of_tokens):
         s+=num_to_word[token]+' '
     return s
 
-print(tokens_to_string(generate_text(np.zeros(50))))
+print("K:",k)
+print("BEAM WIDTH: ", BEAM_WIDTH)
+print(tokens_to_string(generate_text(context_array[0])))
