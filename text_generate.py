@@ -36,7 +36,7 @@ def sample_from(distribution_array, num_of_samples):
         total += distribution_array[i]
     weights = np.asarray([distribution_array[i] for i in u]) * (1.0/total)
 
-    a = np.random.choice(u, size=num_of_samples, p=weights)
+    a = np.random.choice(u, size=num_of_samples, replace=False, p=weights)
     return [(i, distribution_array[i]) for i in a]
 
 def generate_text(input_context):
